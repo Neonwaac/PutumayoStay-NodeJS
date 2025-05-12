@@ -70,7 +70,6 @@ exports.verificarToken = (req, res) => {
         const tokenDecoded = jwt.verify(token, process.env.PUTUMAYOSTAY_JWT_SECRET);
         res.json({ valido: true, mensaje: "Token válido", usuario: tokenDecoded });
     } catch (error) {
-        console.error("Error al verificar token:", error);
         return res.status(401).json({ mensaje: "Token inválido o expirado", valido: false });
     }
 };
@@ -85,10 +84,10 @@ exports.googleLogin = async (req, res) => {
     const password = process.env.PUTUMAYOSTAY_SECRET_KEY;
     try {
         const { token } = await Usuario.googleLogin(username, correo, password, foto);
-        const redirectUrl = `http://localhost:3000/auth-success?token=${encodeURIComponent(token)}`;
+        const redirectUrl = `https://localhost:3000/auth-success?token=${encodeURIComponent(token)}`;
         return res.redirect(redirectUrl);
     } catch (error) {
-        res.redirect("http://localhost:3000/login");
+        res.redirect("https://localhost:3000/login");
         console.error("Error al iniciar sesión con Google:", error);
     }
 };
@@ -131,4 +130,40 @@ exports.cerrarSesion = async (req, res) => {
         res.status(500).json({ message: 'Hubo un error al cerrar sesión', error: error.message });
     }
 
+}
+
+exports.mostRooms = async (req, res) => {
+    try{
+        const response = await Usuario.mostRooms();
+        if(!response) {
+            return res.status(404).json({ message: 'No se encontraron empresas con habitaciones' });
+        }
+        res.status(200).json(response);
+    }catch(error){
+        res.status(500).json({ message: 'Hubo un error al obtener la empresa con más habitaciones', error: error.message });
+    }
+}
+
+exports.mostPayments = async (req, res) => {
+    try{
+        const response = await Usuario.mostPayments();
+        if(!response) {
+            return res.status(404).json({ message: 'No se encontraron empresas con más pagos' });
+        }
+        res.status(200).json(response);
+    }catch(error){
+        res.status(500).json({ message: 'Hubo un error al obtener la empresa con más pagos', error: error.message });
+    }
+}
+
+exports.mostBookings = async (req, res) => {
+    try{
+        const response = await Usuario.mostBookings();
+        if(!response) {
+            return res.status(404).json({ message: 'No se encontraron empresas con más reservas' });
+        }
+        res.status(200).json(response);
+    }catch(error){
+        res.status(500).json({ message: 'Hubo un error al obtener la empresa con más reservas', error: error.message });
+    }
 }
